@@ -1,27 +1,17 @@
 Armor = {}
 Armor.Data = {}
+Armor.iData = {}
 
+local armorCount = 0
 function Armor:Add( tab )
-    for k,v in pairs( self.Data ) do
-        if ( v.Name == tab.Name ) then
-            self.Data[ k ] = tab
-            return
-        end
-    end
-
-    table.insert( self.Data, tab )
+    armorCount = armorCount + 1
+    Armor.Data[tab.Name] = tab
+    Armor.iData[armorCount] = tab
 end
 
 function Armor:Get( name )
     if ( !name ) then return nil end
-
-    for k,v in pairs( self.Data ) do
-        if ( v.Name == name ) then
-            return v
-        end
-    end
-
-    return nil
+    return Armor.Data[name]
 end
 
 if ( SERVER ) then
@@ -56,7 +46,7 @@ if CLIENT then
 end
 
 
-for k, v in pairs(Armor.Data) do
+for k, v in ipairs(Armor.iData) do
     local ENT = {}
     ENT.Type = "anim"
     ENT.Base = "base_gmodentity"
@@ -92,14 +82,16 @@ for k, v in pairs(Armor.Data) do
             self:Remove()
         end
     else
+        local outlineColor = Color(60, 157, 208)
+        local offset = Color(0, 0, 32)
         function ENT:Draw()
             self:DrawModel()
             local angle = Angle(0, 0, 0)
             angle:RotateAroundAxis(Vector(1, 0, 0), 90)
-            angle.y = LocalPlayer():GetAngles().y + 90 + 180
-            local pos = self:GetPos() + Vector(0, 0, 32)
+            angle.y = LocalPlayer():GetAngles().y - 90
+            local pos = self:GetPos() + offset
             cam.Start3D2D(pos, angle, 0.2)
-            draw.SimpleTextOutlined(v.Name, "ArmorFixedFont", 0, 0, color_white, 1, 1, 1, Color(60, 157, 208))
+            draw.SimpleTextOutlined(v.Name, "ArmorFixedFont", 0, 0, color_white, 1, 1, 1, outlineColor)
             cam.End3D2D()
         end
     end
